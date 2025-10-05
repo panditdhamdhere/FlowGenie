@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Bot, 
   Plus, 
@@ -30,7 +31,14 @@ interface Agent {
 }
 
 export function AgentDashboard() {
-  const [agents, setAgents] = useState<Agent[]>([
+  const { user, token } = useAuth();
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Demo data for when backend is not available
+  const demoAgents: Agent[] = [
     {
       id: '1',
       name: 'NBA Top Shot Hunter',
@@ -64,9 +72,43 @@ export function AgentDashboard() {
       lastActivity: '1 hour ago',
       strategy: 'Growth investing in rookie players'
     }
-  ]);
+  ];
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  useEffect(() => {
+    fetchAgents();
+  }, [user, token]);
+
+  const fetchAgents = async () => {
+    if (!user || !token) {
+      setAgents(demoAgents);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:3001/api/agents', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAgents(data.agents || []);
+      } else {
+        // Fallback to demo data if API fails
+        setAgents(demoAgents);
+      }
+    } catch (error) {
+      console.error('Failed to fetch agents:', error);
+      // Fallback to demo data
+      setAgents(demoAgents);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleAgentStatus = (id: string) => {
     setAgents(agents.map(agent => {
@@ -97,7 +139,9 @@ export function AgentDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">My AI Agents</h2>
-          <p className="text-gray-600">Manage and monitor your autonomous trading agents</p>
+          <p className="text-gray-600">
+            {user ? 'Manage and monitor your autonomous trading agents' : 'Demo Mode - Sign in to create your own agents'}
+          </p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
@@ -107,6 +151,23 @@ export function AgentDashboard() {
           Create New Agent
         </button>
       </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-12">
+          <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+            Loading agents...
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
