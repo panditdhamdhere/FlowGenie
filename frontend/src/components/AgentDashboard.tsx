@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { demoAgents, DemoAgent } from '@/services/demoData';
+import { RealTimeUpdates } from './RealTimeUpdates';
 import { 
   Bot, 
   Plus, 
@@ -43,42 +45,7 @@ export function AgentDashboard() {
   });
   const [creating, setCreating] = useState(false);
 
-  // Demo data for when backend is not available
-  const demoAgents: Agent[] = [
-    {
-      id: '1',
-      name: 'NBA Top Shot Hunter',
-      description: 'Automatically buys undervalued NBA moments under $50',
-      status: 'active',
-      profitLoss: 234.50,
-      totalTrades: 47,
-      winRate: 78.7,
-      lastActivity: '2 minutes ago',
-      strategy: 'Value investing with momentum signals'
-    },
-    {
-      id: '2',
-      name: 'Portfolio Balancer',
-      description: 'Maintains optimal portfolio allocation across collections',
-      status: 'active',
-      profitLoss: 156.20,
-      totalTrades: 23,
-      winRate: 82.6,
-      lastActivity: '5 minutes ago',
-      strategy: 'Risk-adjusted portfolio rebalancing'
-    },
-    {
-      id: '3',
-      name: 'NFL All Day Rookie',
-      description: 'Focuses on rookie cards with high growth potential',
-      status: 'paused',
-      profitLoss: -45.30,
-      totalTrades: 12,
-      winRate: 58.3,
-      lastActivity: '1 hour ago',
-      strategy: 'Growth investing in rookie players'
-    }
-  ];
+  // Use demo data service
 
   useEffect(() => {
     fetchAgents();
@@ -286,6 +253,11 @@ export function AgentDashboard() {
             <TrendingUp className="w-8 h-8 text-orange-600" />
           </div>
         </div>
+      </div>
+
+      {/* Real-time Updates */}
+      <div className="mb-8">
+        <RealTimeUpdates />
       </div>
 
       {/* Agents Grid */}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { demoMarketplaceAgents, DemoMarketplaceAgent } from '@/services/demoData';
 import { 
   Search, 
   Filter, 
@@ -18,140 +19,13 @@ import {
   Target
 } from 'lucide-react';
 
-interface MarketplaceAgent {
-  id: string;
-  name: string;
-  description: string;
-  creator: string;
-  price: number;
-  rating: number;
-  downloads: number;
-  category: string;
-  tags: string[];
-  performance: {
-    winRate: number;
-    totalTrades: number;
-    avgProfit: number;
-  };
-  image: string;
-  featured: boolean;
-}
 
 export function Marketplace() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('rating');
 
-  const agents: MarketplaceAgent[] = [
-    {
-      id: '1',
-      name: 'NBA Top Shot Value Hunter',
-      description: 'Automatically identifies and purchases undervalued NBA Top Shot moments based on player performance and market trends.',
-      creator: 'FlowTrader',
-      price: 49.99,
-      rating: 4.8,
-      downloads: 1247,
-      category: 'nba-top-shot',
-      tags: ['NBA', 'Value Investing', 'Automated'],
-      performance: {
-        winRate: 78.5,
-        totalTrades: 156,
-        avgProfit: 23.4
-      },
-      image: '/api/placeholder/300/200',
-      featured: true
-    },
-    {
-      id: '2',
-      name: 'Portfolio Optimizer Pro',
-      description: 'Advanced portfolio management agent that rebalances your NFT collection for optimal risk-adjusted returns.',
-      creator: 'DeFiMaster',
-      price: 79.99,
-      rating: 4.9,
-      downloads: 892,
-      category: 'portfolio',
-      tags: ['Portfolio', 'Risk Management', 'DeFi'],
-      performance: {
-        winRate: 82.3,
-        totalTrades: 89,
-        avgProfit: 31.2
-      },
-      image: '/api/placeholder/300/200',
-      featured: true
-    },
-    {
-      id: '3',
-      name: 'NFL All Day Rookie Scout',
-      description: 'Specializes in identifying high-potential rookie players and their collectible cards for long-term growth.',
-      creator: 'NFLInsider',
-      price: 39.99,
-      rating: 4.6,
-      downloads: 634,
-      category: 'nfl-all-day',
-      tags: ['NFL', 'Rookies', 'Growth'],
-      performance: {
-        winRate: 71.8,
-        totalTrades: 203,
-        avgProfit: 18.7
-      },
-      image: '/api/placeholder/300/200',
-      featured: false
-    },
-    {
-      id: '4',
-      name: 'Momentum Trader',
-      description: 'Follows market momentum and executes quick trades based on volume and price action signals.',
-      creator: 'MomentumKing',
-      price: 29.99,
-      rating: 4.4,
-      downloads: 456,
-      category: 'trading',
-      tags: ['Momentum', 'Technical Analysis', 'Quick Trades'],
-      performance: {
-        winRate: 69.2,
-        totalTrades: 312,
-        avgProfit: 15.8
-      },
-      image: '/api/placeholder/300/200',
-      featured: false
-    },
-    {
-      id: '5',
-      name: 'Diamond Hands Holder',
-      description: 'Long-term holding strategy agent that identifies fundamentally strong assets and holds through market cycles.',
-      creator: 'DiamondHands',
-      price: 19.99,
-      rating: 4.7,
-      downloads: 789,
-      category: 'long-term',
-      tags: ['Long-term', 'HODL', 'Fundamental Analysis'],
-      performance: {
-        winRate: 85.1,
-        totalTrades: 45,
-        avgProfit: 67.3
-      },
-      image: '/api/placeholder/300/200',
-      featured: false
-    },
-    {
-      id: '6',
-      name: 'Arbitrage Hunter',
-      description: 'Finds price discrepancies across different marketplaces and executes profitable arbitrage trades.',
-      creator: 'ArbitrageBot',
-      price: 99.99,
-      rating: 4.9,
-      downloads: 234,
-      category: 'arbitrage',
-      tags: ['Arbitrage', 'Market Making', 'High Frequency'],
-      performance: {
-        winRate: 94.2,
-        totalTrades: 567,
-        avgProfit: 8.7
-      },
-      image: '/api/placeholder/300/200',
-      featured: true
-    }
-  ];
+  const agents: DemoMarketplaceAgent[] = demoMarketplaceAgents;
 
   const categories = [
     { id: 'all', name: 'All Categories' },
