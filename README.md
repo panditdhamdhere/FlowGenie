@@ -55,7 +55,7 @@ FlowGenie is a comprehensive platform that enables users to create, deploy, and 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/flowgenie.git
+   git clone [https://github.com/your-username/flowgenie.git](https://github.com/panditdhamdhere/FlowGenie)
    cd flowgenie
    ```
 
