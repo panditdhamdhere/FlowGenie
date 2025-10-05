@@ -36,6 +36,12 @@ export function AgentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    name: '',
+    description: '',
+    strategy: ''
+  });
+  const [creating, setCreating] = useState(false);
 
   // Demo data for when backend is not available
   const demoAgents: Agent[] = [
@@ -107,6 +113,68 @@ export function AgentDashboard() {
       setAgents(demoAgents);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createAgent = async () => {
+    if (!user || !token) {
+      setError('Please log in to create agents');
+      return;
+    }
+
+    if (!createForm.name || !createForm.description || !createForm.strategy) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    try {
+      setCreating(true);
+      setError('');
+
+      const response = await fetch('http://localhost:3001/api/agents', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: createForm.name,
+          description: createForm.description,
+          prompt: createForm.strategy,
+          settings: {
+            maxTradeAmount: 100,
+            riskTolerance: 'medium',
+            tradingPairs: ['NBA_TOP_SHOT', 'NFL_ALL_DAY']
+          }
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Add the new agent to the list
+        const newAgent: Agent = {
+          id: data.agent.id,
+          name: data.agent.name,
+          description: data.agent.description,
+          status: 'active',
+          profitLoss: 0,
+          totalTrades: 0,
+          winRate: 0,
+          lastActivity: 'Just now',
+          strategy: data.agent.prompt
+        };
+        setAgents([newAgent, ...agents]);
+        setShowCreateModal(false);
+        setCreateForm({ name: '', description: '', strategy: '' });
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to create agent');
+      }
+    } catch (error) {
+      console.error('Failed to create agent:', error);
+      setError('Failed to create agent. Please try again.');
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -309,6 +377,8 @@ export function AgentDashboard() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Agent Name</label>
                 <input
                   type="text"
+                  value={createForm.name}
+                  onChange={(e) => setCreateForm({...createForm, name: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., NBA Top Shot Hunter"
                 />
@@ -316,6 +386,8 @@ export function AgentDashboard() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea
+                  value={createForm.description}
+                  onChange={(e) => setCreateForm({...createForm, description: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={3}
                   placeholder="Describe what this agent will do..."
@@ -325,6 +397,8 @@ export function AgentDashboard() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Trading Strategy</label>
                 <input
                   type="text"
+                  value={createForm.strategy}
+                  onChange={(e) => setCreateForm({...createForm, strategy: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., Buy undervalued NBA moments under $50"
                 />
@@ -332,13 +406,21 @@ export function AgentDashboard() {
             </div>
             <div className="flex space-x-3 mt-6">
               <button
-                onClick={() => setShowCreateModal(false)}
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setCreateForm({ name: '', description: '', strategy: '' });
+                  setError('');
+                }}
                 className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 Cancel
               </button>
-              <button className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all">
-                Create Agent
+              <button
+                onClick={createAgent}
+                disabled={creating}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50"
+              >
+                {creating ? 'Creating...' : 'Create Agent'}
               </button>
             </div>
           </div>
