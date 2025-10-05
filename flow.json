@@ -1,0 +1,33 @@
+{
+  "contracts": {
+    "FlowGenieAgent": "./contracts/FlowGenie/FlowGenieAgent.cdc",
+    "TradingActions": "./contracts/FlowActions/TradingActions.cdc",
+    "AgentMarketplace": "./contracts/Marketplace/AgentMarketplace.cdc"
+  },
+  "networks": {
+    "emulator": "127.0.0.1:3569",
+    "testnet": "access.devnet.nodes.onflow.org:9000",
+    "mainnet": "access.mainnet.nodes.onflow.org:9000"
+  },
+  "accounts": {
+    "flowgenie-account": {
+      "address": "0x1234567890abcdef",
+      "key": "your-private-key-here"
+    },
+    "trading-actions-account": {
+      "address": "0xabcdef1234567890",
+      "key": "your-private-key-here"
+    },
+    "marketplace-account": {
+      "address": "0x9876543210fedcba",
+      "key": "your-private-key-here"
+    }
+  },
+  "deployments": {
+    "testnet": {
+      "flowgenie-account": ["FlowGenieAgent"],
+      "trading-actions-account": ["TradingActions"],
+      "marketplace-account": ["AgentMarketplace"]
+    }
+  }
+}
