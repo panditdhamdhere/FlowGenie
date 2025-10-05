@@ -1,0 +1,288 @@
+'use client';
+
+import React, { useState } from 'react';
+import { 
+  Bot, 
+  Plus, 
+  Play, 
+  Pause, 
+  Settings, 
+  TrendingUp, 
+  DollarSign,
+  Activity,
+  Eye,
+  Share2,
+  BarChart3,
+  Clock,
+  Target
+} from 'lucide-react';
+
+interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  status: 'active' | 'paused' | 'stopped';
+  profitLoss: number;
+  totalTrades: number;
+  winRate: number;
+  lastActivity: string;
+  strategy: string;
+}
+
+export function AgentDashboard() {
+  const [agents, setAgents] = useState<Agent[]>([
+    {
+      id: '1',
+      name: 'NBA Top Shot Hunter',
+      description: 'Automatically buys undervalued NBA moments under $50',
+      status: 'active',
+      profitLoss: 234.50,
+      totalTrades: 47,
+      winRate: 78.7,
+      lastActivity: '2 minutes ago',
+      strategy: 'Value investing with momentum signals'
+    },
+    {
+      id: '2',
+      name: 'Portfolio Balancer',
+      description: 'Maintains optimal portfolio allocation across collections',
+      status: 'active',
+      profitLoss: 156.20,
+      totalTrades: 23,
+      winRate: 82.6,
+      lastActivity: '5 minutes ago',
+      strategy: 'Risk-adjusted portfolio rebalancing'
+    },
+    {
+      id: '3',
+      name: 'NFL All Day Rookie',
+      description: 'Focuses on rookie cards with high growth potential',
+      status: 'paused',
+      profitLoss: -45.30,
+      totalTrades: 12,
+      winRate: 58.3,
+      lastActivity: '1 hour ago',
+      strategy: 'Growth investing in rookie players'
+    }
+  ]);
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const toggleAgentStatus = (id: string) => {
+    setAgents(agents.map(agent => {
+      if (agent.id === id) {
+        const newStatus = agent.status === 'active' ? 'paused' : 'active';
+        return { ...agent, status: newStatus };
+      }
+      return agent;
+    }));
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'paused': return 'bg-yellow-100 text-yellow-800';
+      case 'stopped': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getProfitLossColor = (amount: number) => {
+    return amount >= 0 ? 'text-green-600' : 'text-red-600';
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">My AI Agents</h2>
+          <p className="text-gray-600">Manage and monitor your autonomous trading agents</p>
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          Create New Agent
+        </button>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Agents</p>
+              <p className="text-2xl font-bold text-gray-900">{agents.length}</p>
+            </div>
+            <Bot className="w-8 h-8 text-blue-600" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Active Agents</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {agents.filter(a => a.status === 'active').length}
+              </p>
+            </div>
+            <Activity className="w-8 h-8 text-green-600" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total P&L</p>
+              <p className={`text-2xl font-bold ${getProfitLossColor(
+                agents.reduce((sum, agent) => sum + agent.profitLoss, 0)
+              )}`}>
+                ${agents.reduce((sum, agent) => sum + agent.profitLoss, 0).toFixed(2)}
+              </p>
+            </div>
+            <DollarSign className="w-8 h-8 text-purple-600" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Avg Win Rate</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {(agents.reduce((sum, agent) => sum + agent.winRate, 0) / agents.length).toFixed(1)}%
+              </p>
+            </div>
+            <TrendingUp className="w-8 h-8 text-orange-600" />
+          </div>
+        </div>
+      </div>
+
+      {/* Agents Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {agents.map((agent) => (
+          <div key={agent.id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all">
+            {/* Agent Header */}
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{agent.name}</h3>
+                  <p className="text-sm text-gray-600 mb-3">{agent.description}</p>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(agent.status)}`}>
+                    {agent.status.charAt(0).toUpperCase() + agent.status.slice(1)}
+                  </span>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => toggleAgentStatus(agent.id)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      agent.status === 'active' 
+                        ? 'text-yellow-600 hover:bg-yellow-50' 
+                        : 'text-green-600 hover:bg-green-50'
+                    }`}
+                  >
+                    {agent.status === 'active' ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  </button>
+                  <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                    <Settings className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Agent Stats */}
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">P&L</p>
+                  <p className={`text-lg font-semibold ${getProfitLossColor(agent.profitLoss)}`}>
+                    ${agent.profitLoss.toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Trades</p>
+                  <p className="text-lg font-semibold text-gray-900">{agent.totalTrades}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Win Rate</p>
+                  <p className="text-lg font-semibold text-gray-900">{agent.winRate}%</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Last Activity</p>
+                  <p className="text-lg font-semibold text-gray-900">{agent.lastActivity}</p>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Strategy</p>
+                <p className="text-sm text-gray-700">{agent.strategy}</p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex space-x-2">
+                <button className="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                  <Eye className="w-4 h-4 mr-1" />
+                  View Details
+                </button>
+                <button className="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors">
+                  <BarChart3 className="w-4 h-4 mr-1" />
+                  Analytics
+                </button>
+                <button className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-purple-700 bg-purple-100 hover:bg-purple-200 rounded-lg transition-colors">
+                  <Share2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Create Agent Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Create New AI Agent</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Agent Name</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., NBA Top Shot Hunter"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={3}
+                  placeholder="Describe what this agent will do..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Trading Strategy</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Buy undervalued NBA moments under $50"
+                />
+              </div>
+            </div>
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all">
+                Create Agent
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
