@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { demoAgents, DemoAgent } from '@/services/demoData';
 import { RealTimeUpdates } from './RealTimeUpdates';
+import { LoadingSpinner, SkeletonCard } from './LoadingSpinner';
+import { useToast } from './Toast';
 import { 
   Bot, 
   Plus, 
@@ -34,6 +36,7 @@ interface Agent {
 
 export function AgentDashboard() {
   const { user, token } = useAuth();
+  const { success, error: showError } = useToast();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -133,13 +136,18 @@ export function AgentDashboard() {
         setAgents([newAgent, ...agents]);
         setShowCreateModal(false);
         setCreateForm({ name: '', description: '', strategy: '' });
+        success('Agent Created', `Successfully created "${newAgent.name}"`);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to create agent');
+        const errorMessage = errorData.error || 'Failed to create agent';
+        setError(errorMessage);
+        showError('Creation Failed', errorMessage);
       }
     } catch (error) {
       console.error('Failed to create agent:', error);
-      setError('Failed to create agent. Please try again.');
+      const errorMessage = 'Failed to create agent. Please try again.';
+      setError(errorMessage);
+      showError('Creation Failed', errorMessage);
     } finally {
       setCreating(false);
     }
@@ -189,10 +197,11 @@ export function AgentDashboard() {
 
       {/* Loading State */}
       {loading && (
-        <div className="text-center py-12">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-            Loading agents...
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         </div>
       )}

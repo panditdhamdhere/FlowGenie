@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Bot, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/Toast';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   
   const { login, register } = useAuth();
+  const { success, error: showError } = useToast();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,16 +28,22 @@ export default function LoginPage() {
     try {
       if (isLogin) {
         await login(email, password);
+        success('Welcome back!', 'Successfully logged in');
       } else {
         if (password !== confirmPassword) {
-          setError('Passwords do not match');
+          const errorMessage = 'Passwords do not match';
+          setError(errorMessage);
+          showError('Registration Failed', errorMessage);
           return;
         }
         await register(email, password);
+        success('Account created!', 'Welcome to FlowGenie');
       }
       router.push('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
+      showError(isLogin ? 'Login Failed' : 'Registration Failed', errorMessage);
     } finally {
       setLoading(false);
     }
